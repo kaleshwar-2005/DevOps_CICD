@@ -1,133 +1,1069 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Test Food Blog</title>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Karma">
-<style>
-body,h1,h2,h3,h4,h5,h6 {font-family: "Karma", sans-serif}
-.w3-bar-block .w3-bar-item {padding:20px}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wanderlust — Discover the World</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sand: #f5ede0;
+      --cream: #fdf8f2;
+      --terra: #c1440e;
+      --rust: #e8622a;
+      --deep: #1a1208;
+      --olive: #4a5240;
+      --gold: #d4a843;
+      --mist: #8b9e8a;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--deep);
+      overflow-x: hidden;
+    }
+
+    /* ===== CUSTOM CURSOR ===== */
+    .cursor {
+      width: 12px; height: 12px;
+      background: var(--rust);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease;
+      mix-blend-mode: multiply;
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1.5px solid var(--rust);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9998;
+      transition: all 0.25s ease;
+      mix-blend-mode: multiply;
+    }
+
+    /* ===== NAVBAR ===== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.4rem 4rem;
+      transition: background 0.4s, backdrop-filter 0.4s;
+    }
+    nav.scrolled {
+      background: rgba(253,248,242,0.92);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+    }
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--cream);
+      letter-spacing: -0.5px;
+      transition: color 0.4s;
+    }
+    nav.scrolled .logo { color: var(--deep); }
+    .nav-links { display: flex; gap: 2.2rem; list-style: none; }
+    .nav-links a {
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    nav.scrolled .nav-links a { color: var(--deep); }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-cta {
+      background: var(--rust);
+      color: #fff !important;
+      padding: 0.55rem 1.4rem;
+      border-radius: 2rem;
+      transition: background 0.3s, transform 0.2s !important;
+    }
+    .nav-cta:hover { background: var(--terra) !important; transform: scale(1.04) !important; }
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+    .hamburger span { width: 24px; height: 2px; background: var(--cream); border-radius: 2px; transition: all 0.3s; }
+    nav.scrolled .hamburger span { background: var(--deep); }
+
+    /* ===== HERO ===== */
+    #hero {
+      position: relative;
+      height: 100vh; min-height: 600px;
+      display: flex; align-items: center;
+      overflow: hidden;
+    }
+    .hero-slides { position: absolute; inset: 0; }
+    .hero-slide {
+      position: absolute; inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transition: opacity 1.2s ease;
+    }
+    .hero-slide.active { opacity: 1; }
+    .hero-slide::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(105deg, rgba(26,18,8,0.72) 0%, rgba(26,18,8,0.2) 60%, transparent 100%);
+    }
+    .slide-1 { background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1800&q=80'); }
+    .slide-2 { background-image: url('https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=1800&q=80'); }
+    .slide-3 { background-image: url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1800&q=80'); }
+
+    .hero-content {
+      position: relative; z-index: 2;
+      padding: 0 4rem;
+      max-width: 720px;
+    }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-size: 0.75rem; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.4rem;
+      opacity: 0; animation: fadeUp 0.8s 0.3s forwards;
+    }
+    .hero-tag::before {
+      content: ''; width: 28px; height: 1px; background: var(--gold);
+    }
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 7vw, 5.8rem);
+      line-height: 1.05;
+      color: #fff;
+      margin-bottom: 1.6rem;
+      opacity: 0; animation: fadeUp 0.9s 0.55s forwards;
+    }
+    h1 em { font-style: italic; color: var(--gold); }
+    .hero-sub {
+      font-size: 1.05rem; color: rgba(255,255,255,0.72);
+      line-height: 1.7; max-width: 480px;
+      margin-bottom: 2.8rem;
+      font-weight: 300;
+      opacity: 0; animation: fadeUp 0.9s 0.8s forwards;
+    }
+    .hero-btns {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+      opacity: 0; animation: fadeUp 0.9s 1s forwards;
+    }
+    .btn-primary {
+      background: var(--rust);
+      color: #fff;
+      padding: 0.9rem 2.2rem;
+      border-radius: 2rem;
+      font-size: 0.88rem; font-weight: 500;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: inline-flex; align-items: center; gap: 0.5rem;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(232,98,42,0.4); }
+    .btn-outline {
+      background: transparent;
+      color: #fff;
+      padding: 0.9rem 2.2rem;
+      border-radius: 2rem;
+      border: 1.5px solid rgba(255,255,255,0.45);
+      font-size: 0.88rem; font-weight: 500;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.8); }
+
+    .hero-dots {
+      position: absolute; bottom: 2.5rem; left: 4rem;
+      display: flex; gap: 0.5rem; z-index: 2;
+    }
+    .dot {
+      width: 28px; height: 3px; border-radius: 2px;
+      background: rgba(255,255,255,0.3);
+      cursor: pointer; transition: background 0.3s, width 0.3s;
+    }
+    .dot.active { background: var(--gold); width: 48px; }
+
+    .hero-scroll {
+      position: absolute; bottom: 2.5rem; right: 4rem;
+      display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+      z-index: 2; color: rgba(255,255,255,0.5);
+      font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .scroll-line {
+      width: 1px; height: 44px;
+      background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.4));
+      animation: scrollPulse 2s infinite;
+    }
+
+    /* ===== SEARCH BAR ===== */
+    .search-section {
+      background: #fff;
+      border-radius: 1.5rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+      padding: 1.6rem 2rem;
+      max-width: 900px;
+      margin: -3rem auto 0;
+      position: relative; z-index: 10;
+      display: grid; grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 1rem; align-items: end;
+    }
+    .search-field { display: flex; flex-direction: column; gap: 0.4rem; }
+    .search-field label {
+      font-size: 0.72rem; font-weight: 500;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--mist);
+    }
+    .search-field input, .search-field select {
+      border: none; border-bottom: 1.5px solid #e0d8ce;
+      padding: 0.5rem 0;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem; color: var(--deep);
+      background: transparent; outline: none;
+      transition: border-color 0.3s;
+    }
+    .search-field input:focus, .search-field select:focus { border-color: var(--rust); }
+    .search-btn {
+      background: var(--rust); color: #fff;
+      border: none; border-radius: 0.9rem;
+      padding: 0.8rem 1.8rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem; font-weight: 500;
+      cursor: pointer; transition: background 0.3s, transform 0.2s;
+      white-space: nowrap;
+    }
+    .search-btn:hover { background: var(--terra); transform: scale(1.03); }
+
+    /* ===== SECTIONS COMMON ===== */
+    section { padding: 6rem 4rem; }
+    .section-tag {
+      font-size: 0.72rem; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--rust);
+      display: flex; align-items: center; gap: 0.6rem;
+      margin-bottom: 0.9rem;
+    }
+    .section-tag::before { content: ''; width: 22px; height: 1.5px; background: var(--rust); }
+    h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1.15; color: var(--deep);
+      margin-bottom: 1rem;
+    }
+    .section-lead {
+      font-size: 1rem; color: #6b7280;
+      line-height: 1.75; max-width: 520px;
+    }
+
+    /* ===== DESTINATIONS ===== */
+    #destinations { background: var(--cream); }
+    .dest-header {
+      display: flex; justify-content: space-between;
+      align-items: flex-end; margin-bottom: 3.2rem; flex-wrap: wrap; gap: 1rem;
+    }
+    .see-all {
+      font-size: 0.82rem; font-weight: 500;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--rust); text-decoration: none;
+      display: flex; align-items: center; gap: 0.4rem;
+      transition: gap 0.2s;
+    }
+    .see-all:hover { gap: 0.8rem; }
+    .dest-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      grid-template-rows: 300px 300px;
+      gap: 1.2rem;
+    }
+    .dest-card {
+      position: relative; overflow: hidden;
+      border-radius: 1.2rem; cursor: pointer;
+    }
+    .dest-card:first-child { grid-row: span 2; }
+    .dest-card img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    .dest-card:hover img { transform: scale(1.07); }
+    .dest-card::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(26,18,8,0.75) 0%, transparent 55%);
+    }
+    .dest-info {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 1.5rem;
+      z-index: 2;
+    }
+    .dest-country {
+      font-size: 0.72rem; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--gold);
+      font-weight: 500; margin-bottom: 0.3rem;
+    }
+    .dest-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; color: #fff;
+      font-weight: 700;
+    }
+    .dest-card:first-child .dest-name { font-size: 2rem; }
+    .dest-badge {
+      position: absolute; top: 1rem; right: 1rem;
+      background: var(--gold); color: var(--deep);
+      font-size: 0.7rem; font-weight: 600;
+      padding: 0.3rem 0.8rem; border-radius: 1rem;
+      letter-spacing: 0.05em; z-index: 2;
+    }
+
+    /* ===== STATS STRIP ===== */
+    .stats-strip {
+      background: var(--deep);
+      padding: 3.5rem 4rem;
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 2rem; text-align: center;
+    }
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem; font-weight: 900; color: var(--gold);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.8rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: rgba(255,255,255,0.5);
+      margin-top: 0.5rem;
+    }
+
+    /* ===== TOURS ===== */
+    #tours { background: var(--sand); }
+    .tours-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem; margin-top: 3rem;
+    }
+    .tour-card {
+      background: #fff; border-radius: 1.2rem;
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+    }
+    .tour-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 24px 50px rgba(0,0,0,0.1);
+    }
+    .tour-img { position: relative; height: 220px; overflow: hidden; }
+    .tour-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+    .tour-card:hover .tour-img img { transform: scale(1.06); }
+    .tour-tag {
+      position: absolute; top: 1rem; left: 1rem;
+      background: var(--rust); color: #fff;
+      font-size: 0.68rem; font-weight: 600;
+      padding: 0.25rem 0.75rem; border-radius: 1rem;
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    .tour-body { padding: 1.5rem; }
+    .tour-meta {
+      display: flex; gap: 1.2rem; margin-bottom: 0.8rem;
+    }
+    .tour-meta span {
+      font-size: 0.78rem; color: var(--mist);
+      display: flex; align-items: center; gap: 0.3rem;
+    }
+    .tour-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem; color: var(--deep);
+      margin-bottom: 0.6rem; line-height: 1.35;
+    }
+    .tour-desc { font-size: 0.87rem; color: #8b8070; line-height: 1.65; margin-bottom: 1.2rem; }
+    .tour-footer {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid #f0e8dc; padding-top: 1rem;
+    }
+    .tour-price { font-family: 'Playfair Display', serif; }
+    .tour-price span { font-size: 0.75rem; color: var(--mist); }
+    .tour-price strong { font-size: 1.4rem; color: var(--deep); }
+    .book-btn {
+      background: var(--deep); color: #fff;
+      border: none; border-radius: 2rem;
+      padding: 0.55rem 1.3rem;
+      font-size: 0.8rem; font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .book-btn:hover { background: var(--rust); }
+
+    /* ===== EXPERIENCE ===== */
+    #experience { background: var(--cream); }
+    .exp-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 5rem; align-items: center; margin-top: 3rem;
+    }
+    .exp-visual { position: relative; }
+    .exp-main-img {
+      width: 100%; height: 500px; object-fit: cover;
+      border-radius: 1.5rem;
+    }
+    .exp-accent-img {
+      position: absolute; bottom: -2.5rem; right: -2.5rem;
+      width: 200px; height: 220px;
+      object-fit: cover; border-radius: 1.2rem;
+      border: 6px solid var(--cream);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.18);
+    }
+    .exp-badge-box {
+      position: absolute; top: 2rem; left: -2rem;
+      background: var(--rust); color: #fff;
+      padding: 1.2rem 1.6rem; border-radius: 1rem;
+      text-align: center; box-shadow: 0 12px 30px rgba(232,98,42,0.4);
+    }
+    .exp-badge-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem; font-weight: 900; line-height: 1;
+    }
+    .exp-badge-label { font-size: 0.72rem; letter-spacing: 0.08em; opacity: 0.85; }
+    .exp-features { margin-top: 2rem; display: flex; flex-direction: column; gap: 1.2rem; }
+    .exp-feature {
+      display: flex; gap: 1rem; align-items: flex-start;
+    }
+    .exp-icon {
+      width: 46px; height: 46px; min-width: 46px;
+      border-radius: 0.8rem;
+      background: var(--sand);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+    }
+    .exp-feature h4 { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .exp-feature p { font-size: 0.87rem; color: #8b8070; line-height: 1.6; }
+
+    /* ===== TESTIMONIALS ===== */
+    #testimonials { background: var(--deep); }
+    #testimonials .section-tag { color: var(--gold); }
+    #testimonials .section-tag::before { background: var(--gold); }
+    #testimonials h2 { color: #fff; }
+    .testi-grid {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 1.8rem; margin-top: 3rem;
+    }
+    .testi-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 1.2rem; padding: 2rem;
+      transition: background 0.3s;
+    }
+    .testi-card:hover { background: rgba(255,255,255,0.08); }
+    .stars { color: var(--gold); font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 2px; }
+    .testi-text {
+      font-size: 0.95rem; color: rgba(255,255,255,0.7);
+      line-height: 1.75; margin-bottom: 1.5rem;
+      font-style: italic;
+    }
+    .testi-author { display: flex; align-items: center; gap: 0.9rem; }
+    .testi-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      object-fit: cover; border: 2px solid var(--gold);
+    }
+    .testi-name { font-size: 0.9rem; font-weight: 600; color: #fff; }
+    .testi-loc { font-size: 0.76rem; color: rgba(255,255,255,0.4); }
+
+    /* ===== NEWSLETTER ===== */
+    .newsletter {
+      background: linear-gradient(135deg, var(--rust), var(--terra));
+      padding: 5rem 4rem;
+      text-align: center;
+    }
+    .newsletter h2 { color: #fff; margin-bottom: 0.8rem; }
+    .newsletter p { color: rgba(255,255,255,0.75); margin-bottom: 2rem; font-size: 1rem; }
+    .nl-form {
+      display: flex; gap: 0.8rem; justify-content: center;
+      max-width: 480px; margin: 0 auto; flex-wrap: wrap;
+    }
+    .nl-form input {
+      flex: 1; min-width: 220px;
+      padding: 0.9rem 1.5rem;
+      border-radius: 2rem; border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem;
+      outline: none;
+    }
+    .nl-form button {
+      background: var(--deep); color: #fff;
+      border: none; border-radius: 2rem;
+      padding: 0.9rem 2rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem; font-weight: 600;
+      cursor: pointer; transition: transform 0.2s, background 0.3s;
+    }
+    .nl-form button:hover { transform: scale(1.04); background: #2a1e0e; }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: #110d06;
+      padding: 4rem 4rem 2rem;
+      color: rgba(255,255,255,0.5);
+    }
+    .footer-grid {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 3rem; margin-bottom: 3rem;
+    }
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem; font-weight: 900; color: #fff;
+      margin-bottom: 1rem;
+    }
+    .footer-about { font-size: 0.88rem; line-height: 1.75; max-width: 280px; }
+    .footer-social { display: flex; gap: 0.8rem; margin-top: 1.5rem; }
+    .social-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%; border: 1px solid rgba(255,255,255,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; color: rgba(255,255,255,0.5);
+      cursor: pointer; transition: background 0.3s, color 0.3s;
+    }
+    .social-btn:hover { background: var(--rust); color: #fff; border-color: var(--rust); }
+    .footer-col h5 {
+      font-size: 0.78rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: #fff; margin-bottom: 1.2rem;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.65rem; }
+    .footer-col a { font-size: 0.87rem; color: rgba(255,255,255,0.45); text-decoration: none; transition: color 0.3s; }
+    .footer-col a:hover { color: var(--gold); }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding-top: 1.8rem;
+      display: flex; justify-content: space-between;
+      align-items: center; font-size: 0.8rem; flex-wrap: wrap; gap: 0.5rem;
+    }
+
+    /* ===== MOBILE MENU ===== */
+    .mobile-menu {
+      display: none;
+      position: fixed; inset: 0;
+      background: var(--deep); z-index: 200;
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 2rem;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem; color: #fff; text-decoration: none;
+      transition: color 0.3s;
+    }
+    .mobile-menu a:hover { color: var(--gold); }
+    .menu-close {
+      position: absolute; top: 1.5rem; right: 2rem;
+      background: none; border: none; color: #fff;
+      font-size: 2rem; cursor: pointer;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.3; transform: scaleY(1); }
+      50% { opacity: 1; transform: scaleY(1.2); }
+    }
+    .reveal {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+      .dest-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+      .dest-card:first-child { grid-row: span 1; }
+      .tours-grid { grid-template-columns: 1fr 1fr; }
+      .exp-grid { grid-template-columns: 1fr; }
+      .exp-visual { display: none; }
+      .testi-grid { grid-template-columns: 1fr 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .stats-strip { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 768px) {
+      nav { padding: 1.2rem 1.5rem; }
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      section { padding: 4rem 1.5rem; }
+      .hero-content { padding: 0 1.5rem; }
+      h1 { font-size: 2.8rem; }
+      .dest-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+      .tours-grid { grid-template-columns: 1fr; }
+      .testi-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .stats-strip { grid-template-columns: repeat(2,1fr); padding: 3rem 1.5rem; }
+      .search-section { grid-template-columns: 1fr; margin: -1.5rem 1rem 0; }
+      .newsletter { padding: 4rem 1.5rem; }
+      footer { padding: 3rem 1.5rem 1.5rem; }
+      .hero-dots, .hero-scroll { display: none; }
+      .cursor, .cursor-ring { display: none; }
+    }
+  </style>
 </head>
 <body>
 
-<!-- Sidebar (hidden by default) -->
-<nav class="w3-sidebar w3-bar-block w3-card w3-top w3-xlarge w3-animate-left" style="display:none;z-index:2;width:40%;min-width:300px" id="mySidebar">
-  <a href="javascript:void(0)" onclick="w3_close()"
-  class="w3-bar-item w3-button">Close Menu</a>
-  <a href="#food" onclick="w3_close()" class="w3-bar-item w3-button">Food</a>
-  <a href="#about" onclick="w3_close()" class="w3-bar-item w3-button">About</a>
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="menu-close" onclick="closeMobileMenu()">✕</button>
+  <a href="#destinations" onclick="closeMobileMenu()">Destinations</a>
+  <a href="#tours" onclick="closeMobileMenu()">Tours</a>
+  <a href="#experience" onclick="closeMobileMenu()">About</a>
+  <a href="#testimonials" onclick="closeMobileMenu()">Reviews</a>
+  <a href="#" onclick="closeMobileMenu()">Book Now</a>
+</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="logo">Wanderlust</div>
+  <ul class="nav-links">
+    <li><a href="#destinations">Destinations</a></li>
+    <li><a href="#tours">Tours</a></li>
+    <li><a href="#experience">About</a></li>
+    <li><a href="#testimonials">Reviews</a></li>
+    <li><a href="#" class="nav-cta">Book Now</a></li>
+  </ul>
+  <div class="hamburger" onclick="openMobileMenu()">
+    <span></span><span></span><span></span>
+  </div>
 </nav>
 
-<!-- Top menu -->
-<div class="w3-top">
-  <div class="w3-white w3-xlarge" style="max-width:1200px;margin:auto">
-    <div class="w3-button w3-padding-16 w3-left" onclick="w3_open()">☰</div>
-    <div class="w3-right w3-padding-16">Mail</div>
-    <div class="w3-center w3-padding-16">My Food</div>
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-slides">
+    <div class="hero-slide slide-1 active"></div>
+    <div class="hero-slide slide-2"></div>
+    <div class="hero-slide slide-3"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-tag">✦ Curated Travel Experiences</div>
+    <h1>The World is<br><em>Waiting</em> for You</h1>
+    <p class="hero-sub">Discover breathtaking destinations, expertly crafted itineraries, and transformative journeys that you'll remember forever.</p>
+    <div class="hero-btns">
+      <a href="#destinations" class="btn-primary">Explore Destinations →</a>
+      <a href="#tours" class="btn-outline">View All Tours</a>
+    </div>
+  </div>
+  <div class="hero-dots">
+    <div class="dot active" onclick="goSlide(0)"></div>
+    <div class="dot" onclick="goSlide(1)"></div>
+    <div class="dot" onclick="goSlide(2)"></div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    Scroll
+  </div>
+</section>
+
+<!-- SEARCH -->
+<div class="search-section reveal">
+  <div class="search-field">
+    <label>Where to?</label>
+    <input type="text" placeholder="City or Country…"/>
+  </div>
+  <div class="search-field">
+    <label>Travel Date</label>
+    <input type="date"/>
+  </div>
+  <div class="search-field">
+    <label>Tour Type</label>
+    <select>
+      <option>Adventure</option>
+      <option>Cultural</option>
+      <option>Beach & Relax</option>
+      <option>Wildlife</option>
+      <option>City Break</option>
+    </select>
+  </div>
+  <button class="search-btn">Search →</button>
+</div>
+
+<!-- DESTINATIONS -->
+<section id="destinations">
+  <div class="dest-header reveal">
+    <div>
+      <div class="section-tag">Top Picks</div>
+      <h2>Popular Destinations</h2>
+    </div>
+    <a href="#" class="see-all">See All →</a>
+  </div>
+  <div class="dest-grid">
+    <div class="dest-card reveal">
+      <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=800&q=80" alt="Kyoto"/>
+      <div class="dest-badge">Trending</div>
+      <div class="dest-info">
+        <div class="dest-country">Japan</div>
+        <div class="dest-name">Kyoto</div>
+      </div>
+    </div>
+    <div class="dest-card reveal">
+      <img src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=600&q=80" alt="Paris"/>
+      <div class="dest-info">
+        <div class="dest-country">France</div>
+        <div class="dest-name">Paris</div>
+      </div>
+    </div>
+    <div class="dest-card reveal">
+      <img src="https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=600&q=80" alt="Maldives"/>
+      <div class="dest-badge">✦ Hot</div>
+      <div class="dest-info">
+        <div class="dest-country">Maldives</div>
+        <div class="dest-name">Malé Atoll</div>
+      </div>
+    </div>
+    <div class="dest-card reveal">
+      <img src="https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=600&q=80" alt="Santorini"/>
+      <div class="dest-info">
+        <div class="dest-country">Greece</div>
+        <div class="dest-name">Santorini</div>
+      </div>
+    </div>
+    <div class="dest-card reveal">
+      <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=600&q=80" alt="Bali"/>
+      <div class="dest-info">
+        <div class="dest-country">Indonesia</div>
+        <div class="dest-name">Bali</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="reveal">
+    <div class="stat-num" data-target="120">0</div>
+    <div class="stat-label">Destinations</div>
+  </div>
+  <div class="reveal">
+    <div class="stat-num" data-target="48000">0</div>
+    <div class="stat-label">Happy Travellers</div>
+  </div>
+  <div class="reveal">
+    <div class="stat-num" data-target="350">0</div>
+    <div class="stat-label">Tour Packages</div>
+  </div>
+  <div class="reveal">
+    <div class="stat-num" data-target="15">0</div>
+    <div class="stat-label">Years of Experience</div>
   </div>
 </div>
-  
-<!-- !PAGE CONTENT! -->
-<div class="w3-main w3-content w3-padding" style="max-width:1200px;margin-top:100px">
 
-  <!-- First Photo Grid-->
-  <div class="w3-row-padding w3-padding-16 w3-center" id="food">
-    <div class="w3-quarter">
-      <img src="https://vaya.in/recipes/wp-content/uploads/2018/06/Club-sandwich.jpg" alt="Sandwich" style="width:100%">
-      <h3>The Perfect Sandwich, A Real NYC Classic</h3>
+<!-- TOURS -->
+<section id="tours">
+  <div class="reveal">
+    <div class="section-tag">Curated Packages</div>
+    <h2>Featured Tours</h2>
+    <p class="section-lead">Handpicked experiences designed to immerse you in the soul of each destination.</p>
+  </div>
+  <div class="tours-grid">
+    <div class="tour-card reveal">
+      <div class="tour-img">
+        <img src="https://images.unsplash.com/photo-1531973576160-7125cd663d86?auto=format&fit=crop&w=600&q=80" alt="Alps Adventure"/>
+        <span class="tour-tag">Adventure</span>
+      </div>
+      <div class="tour-body">
+        <div class="tour-meta">
+          <span>📍 Switzerland</span>
+          <span>📅 8 Days</span>
+          <span>👤 Max 12</span>
+        </div>
+        <div class="tour-title">Swiss Alps Grand Traverse</div>
+        <div class="tour-desc">Hike through pristine alpine meadows, summit iconic peaks, and stay in charming mountain chalets.</div>
+        <div class="tour-footer">
+          <div class="tour-price"><span>From </span><strong>$2,890</strong></div>
+          <button class="book-btn">Book Now</button>
+        </div>
+      </div>
     </div>
-    <div class="w3-quarter">
-      <img src="https://arc-anglerfish-washpost-prod-washpost.s3.amazonaws.com/public/53BGPNAB6YI63C7LFNHEQGYVAA.jpg" alt="Steak" style="width:100%">
-      <h3>Let Me Tell You About This Steak</h3>
+    <div class="tour-card reveal">
+      <div class="tour-img">
+        <img src="https://images.unsplash.com/photo-1545569341-9eb8b30979d9?auto=format&fit=crop&w=600&q=80" alt="Japan Culture"/>
+        <span class="tour-tag">Cultural</span>
+      </div>
+      <div class="tour-body">
+        <div class="tour-meta">
+          <span>📍 Japan</span>
+          <span>📅 12 Days</span>
+          <span>👤 Max 10</span>
+        </div>
+        <div class="tour-title">Ancient Japan Immersion</div>
+        <div class="tour-desc">Temples, tea ceremonies, sushi masters, and the neon chaos of Tokyo in one unforgettable journey.</div>
+        <div class="tour-footer">
+          <div class="tour-price"><span>From </span><strong>$3,450</strong></div>
+          <button class="book-btn">Book Now</button>
+        </div>
+      </div>
     </div>
-    <div class="w3-quarter">
-      <img src="https://blog.lexmed.com/images/librariesprovider80/blog-post-featured-images/shutterstock_1933299218.jpg?sfvrsn=4a8d900b_0" alt="Cherries" style="width:100%">
-      <h3>Cherries, interrupted</h3>
-      <p>What else?</p>
-    </div>
-    <div class="w3-quarter">
-      <img src="https://www.acouplecooks.com/wp-content/uploads/2023/01/Red-Sauce-Pasta-008.jpg" alt="Pasta and Wine" style="width:100%">
-      <h3>Once Again, Robust Wine and Vegetable Pasta</h3>
+    <div class="tour-card reveal">
+      <div class="tour-img">
+        <img src="https://images.unsplash.com/photo-1539020140153-e479b8c22e70?auto=format&fit=crop&w=600&q=80" alt="Morocco"/>
+        <span class="tour-tag">Explorer</span>
+      </div>
+      <div class="tour-body">
+        <div class="tour-meta">
+          <span>📍 Morocco</span>
+          <span>📅 10 Days</span>
+          <span>👤 Max 16</span>
+        </div>
+        <div class="tour-title">Morocco Desert Odyssey</div>
+        <div class="tour-desc">From the souks of Marrakech to the dunes of the Sahara — spice, magic, and star-filled nights.</div>
+        <div class="tour-footer">
+          <div class="tour-price"><span>From </span><strong>$2,190</strong></div>
+          <button class="book-btn">Book Now</button>
+        </div>
+      </div>
     </div>
   </div>
-  
-  <!-- Second Photo Grid-->
-  <div class="w3-row-padding w3-padding-16 w3-center">
-    <div class="w3-quarter">
-      <img src="https://feelgoodfoodie.net/wp-content/uploads/2022/04/How-to-Make-Popsicles-15.jpg" alt="Popsicle" style="width:100%">
-      <h3>All I Need Is a Popsicle</h3>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="exp-grid">
+    <div class="exp-visual reveal">
+      <img src="https://images.unsplash.com/photo-1488085061387-422e29b40080?auto=format&fit=crop&w=800&q=80" alt="Travel" class="exp-main-img"/>
+      <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=400&q=80" alt="Exploring" class="exp-accent-img"/>
+      <div class="exp-badge-box">
+        <div class="exp-badge-num">4.9</div>
+        <div class="exp-badge-label">★ Average Rating</div>
+      </div>
     </div>
-    <div class="w3-quarter">
-      <img src="https://www.wholesomeyum.com/wp-content/uploads/2021/07/wholesomeyum-Pan-Seared-Salmon-12.jpg" alt="Salmon" style="width:100%">
-      <h3>Salmon For Your Skin</h3>
-    </div>
-    <div class="w3-quarter">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Desserts.jpg/640px-Desserts.jpg" alt="Sandwich" style="width:100%">
-      <h3>The Perfect Dessert</h3>
-    </div>
-    <div class="w3-quarter">
-      <img src="https://www.simplejoy.com/wp-content/uploads/2021/04/Croissant-French-Toast-5.jpg" alt="Croissant" style="width:100%">
-      <h3>Le French</h3>
+    <div class="reveal">
+      <div class="section-tag">Why Choose Us</div>
+      <h2>Travel Crafted with Passion & Precision</h2>
+      <p class="section-lead">We believe every journey should be more than a trip — it should be a story worth telling for decades.</p>
+      <div class="exp-features">
+        <div class="exp-feature">
+          <div class="exp-icon">🗺️</div>
+          <div>
+            <h4>Expert Local Guides</h4>
+            <p>Our guides are born storytellers with deep roots in every destination we visit.</p>
+          </div>
+        </div>
+        <div class="exp-feature">
+          <div class="exp-icon">🛡️</div>
+          <div>
+            <h4>Worry-Free Guarantee</h4>
+            <p>Full travel insurance, 24/7 support, and a hassle-free booking experience from day one.</p>
+          </div>
+        </div>
+        <div class="exp-feature">
+          <div class="exp-icon">✦</div>
+          <div>
+            <h4>Tailored Itineraries</h4>
+            <p>No cookie-cutter tours — every journey is personalised to match your pace and interests.</p>
+          </div>
+        </div>
+        <div class="exp-feature">
+          <div class="exp-icon">🌿</div>
+          <div>
+            <h4>Sustainable Travel</h4>
+            <p>We partner with local communities and eco-certified lodges to tread lightly on the planet.</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+</section>
 
-  <!-- Pagination -->
-  <div class="w3-center w3-padding-32">
-    <div class="w3-bar">
-      <a href="#" class="w3-bar-item w3-button w3-hover-black">«</a>
-      <a href="#" class="w3-bar-item w3-black w3-button">1</a>
-      <a href="#" class="w3-bar-item w3-button w3-hover-black">2</a>
-      <a href="#" class="w3-bar-item w3-button w3-hover-black">3</a>
-      <a href="#" class="w3-bar-item w3-button w3-hover-black">4</a>
-      <a href="#" class="w3-bar-item w3-button w3-hover-black">»</a>
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="reveal" style="text-align:center; max-width:560px; margin:0 auto;">
+    <div class="section-tag" style="justify-content:center;">What Travellers Say</div>
+    <h2>Stories from the Road</h2>
+  </div>
+  <div class="testi-grid">
+    <div class="testi-card reveal">
+      <div class="stars">★★★★★</div>
+      <p class="testi-text">"The Japan tour was the most transformative experience of my life. Every detail was perfect — from the ryokan stays to the private tea ceremony."</p>
+      <div class="testi-author">
+        <img src="https://i.pravatar.cc/80?img=47" class="testi-avatar" alt="Sarah"/>
+        <div>
+          <div class="testi-name">Sarah Mitchell</div>
+          <div class="testi-loc">London, UK</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="stars">★★★★★</div>
+      <p class="testi-text">"Morocco exceeded every expectation. Our guide Youssef was phenomenal. The Sahara night under the stars is something I'll never forget."</p>
+      <div class="testi-author">
+        <img src="https://i.pravatar.cc/80?img=12" class="testi-avatar" alt="Marco"/>
+        <div>
+          <div class="testi-name">Marco Rossi</div>
+          <div class="testi-loc">Milan, Italy</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="stars">★★★★★</div>
+      <p class="testi-text">"I've travelled with 5 different companies. Wanderlust is simply a different class. Seamless logistics, stunning hotels, and a team that genuinely cares."</p>
+      <div class="testi-author">
+        <img src="https://i.pravatar.cc/80?img=38" class="testi-avatar" alt="Priya"/>
+        <div>
+          <div class="testi-name">Priya Nair</div>
+          <div class="testi-loc">Mumbai, India</div>
+        </div>
+      </div>
     </div>
   </div>
-  
-  <hr id="about">
+</section>
 
-  <!-- About Section -->
-  <div class="w3-container w3-padding-32 w3-center">  
-    <h3>About Me, The Food Man</h3><br>
-    <img src="https://www.cordonbleu.edu/Files/MediaFile/58300.jpg" alt="Me" class="w3-image" style="display:block;margin:auto" width="800" height="533">
-    <div class="w3-padding-32">
-      <h4><b>I am Who I Am!</b></h4>
-      <h6><i>With Passion For Real, Good Food</i></h6>
-      <p>Just me, myself and I, exploring the universe of unknownment. I have a heart of love and an interest on food blog. I want to share my world with you.</p>
-    </div>
+<!-- NEWSLETTER -->
+<div class="newsletter reveal">
+  <div class="section-tag" style="justify-content:center; color:rgba(255,255,255,0.7);">Stay Inspired</div>
+  <h2>Get Travel Ideas in Your Inbox</h2>
+  <p>Exclusive deals, hidden gems, and insider guides — delivered weekly.</p>
+  <div class="nl-form">
+    <input type="email" placeholder="your@email.com"/>
+    <button>Subscribe →</button>
   </div>
-  <hr>
-  
-  <!-- Footer -->
-  <footer class="w3-row-padding w3-padding-32">
-
-    <div class="w3-third w3-serif">
-      <h3>POPULAR TAGS</h3>
-      <p>
-        <span class="w3-tag w3-black w3-margin-bottom">Travel</span> <span class="w3-tag w3-dark-grey w3-small w3-margin-bottom">New York</span> <span class="w3-tag w3-dark-grey w3-small w3-margin-bottom">Dinner</span>
-        <span class="w3-tag w3-dark-grey w3-small w3-margin-bottom">Salmon</span> <span class="w3-tag w3-dark-grey w3-small w3-margin-bottom">France</span> <span class="w3-tag w3-dark-grey w3-small w3-margin-bottom">Drinks</span>
-        <span class="w3-tag w3-dark-grey w3-small w3-margin-bottom">Ideas</span> <span class="w3-tag w3-dark-grey w3-small w3-margin-bottom">Flavors</span> <span class="w3-tag w3-dark-grey w3-small w3-margin-bottom">Cuisine</span>
-        <span class="w3-tag w3-dark-grey w3-small w3-margin-bottom">Chicken</span> <span class="w3-tag w3-dark-grey w3-small w3-margin-bottom">Dressing</span> <span class="w3-tag w3-dark-grey w3-small w3-margin-bottom">Fried</span>
-        <span class="w3-tag w3-dark-grey w3-small w3-margin-bottom">Fish</span> <span class="w3-tag w3-dark-grey w3-small w3-margin-bottom">Duck</span>
-      </p>
-    </div>
-  </footer>
-
-<!-- End page content -->
 </div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-logo">Wanderlust</div>
+      <p class="footer-about">Crafting extraordinary travel experiences since 2009. We believe the world is the greatest classroom, and every trip a masterclass in living.</p>
+      <div class="footer-social">
+        <div class="social-btn">𝕏</div>
+        <div class="social-btn">f</div>
+        <div class="social-btn">in</div>
+        <div class="social-btn">▶</div>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h5>Explore</h5>
+      <ul>
+        <li><a href="#">All Destinations</a></li>
+        <li><a href="#">Tour Packages</a></li>
+        <li><a href="#">Adventure Tours</a></li>
+        <li><a href="#">Cultural Tours</a></li>
+        <li><a href="#">Beach Getaways</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Company</h5>
+      <ul>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Our Guides</a></li>
+        <li><a href="#">Sustainability</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Press</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Support</h5>
+      <ul>
+        <li><a href="#">FAQs</a></li>
+        <li><a href="#">Booking Help</a></li>
+        <li><a href="#">Travel Insurance</a></li>
+        <li><a href="#">Contact Us</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 Wanderlust Travel Co. All rights reserved.</span>
+    <span>Made with ♥ for explorers everywhere</span>
+  </div>
+</footer>
 
 <script>
-// Script to open and close sidebar
-function w3_open() {
-  document.getElementById("mySidebar").style.display = "block";
-}
- 
-function w3_close() {
-  document.getElementById("mySidebar").style.display = "none";
-}
-</script>
+  // ---- CURSOR ----
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  function animateCursor() {
+    cursor.style.left = mx - 6 + 'px';
+    cursor.style.top = my - 6 + 'px';
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx - 18 + 'px';
+    ring.style.top = ry - 18 + 'px';
+    requestAnimationFrame(animateCursor);
+  }
+  animateCursor();
+  document.querySelectorAll('a,button,.dest-card,.tour-card').forEach(el => {
+    el.addEventListener('mouseenter', () => { ring.style.transform = 'scale(1.8)'; ring.style.borderColor = 'var(--gold)'; });
+    el.addEventListener('mouseleave', () => { ring.style.transform = 'scale(1)'; ring.style.borderColor = 'var(--rust)'; });
+  });
 
+  // ---- NAVBAR ----
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // ---- HERO SLIDER ----
+  const slides = document.querySelectorAll('.hero-slide');
+  const dots = document.querySelectorAll('.dot');
+  let current = 0, interval;
+  function goSlide(n) {
+    slides[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    current = n;
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+  }
+  function nextSlide() { goSlide((current + 1) % slides.length); }
+  interval = setInterval(nextSlide, 5000);
+  dots.forEach((d, i) => d.addEventListener('click', () => { clearInterval(interval); goSlide(i); interval = setInterval(nextSlide, 5000); }));
+
+  // ---- SCROLL REVEAL ----
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(r => observer.observe(r));
+
+  // ---- COUNTER ANIMATION ----
+  function animateCount(el, target) {
+    let start = 0;
+    const dur = 2000;
+    const step = t => {
+      start += t;
+      const progress = Math.min(start / dur, 1);
+      const val = Math.floor(progress * target);
+      el.textContent = target >= 1000 ? val.toLocaleString() : val;
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+  const statObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const el = e.target;
+        animateCount(el, parseInt(el.dataset.target));
+        statObs.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('.stat-num[data-target]').forEach(el => statObs.observe(el));
+
+  // ---- MOBILE MENU ----
+  function openMobileMenu() { document.getElementById('mobileMenu').classList.add('open'); }
+  function closeMobileMenu() { document.getElementById('mobileMenu').classList.remove('open'); }
+</script>
 </body>
 </html>
